@@ -39,7 +39,6 @@ func start_host():
 	
 	multiplayer.set_multiplayer_peer(peer)
 	print("waiting for players")
-	send_player_information("hostname", multiplayer.get_unique_id())
 
 func join_host():
 	peer = ENetMultiplayerPeer.new()

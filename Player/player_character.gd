@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name Player
 
+signal spawned
+
 @export var crouching_depth = .5
 @export_subgroup("Movement")
 @export var walking_speed: float = 5.0
@@ -23,6 +25,9 @@ class_name Player
 @onready var hand_container: Node3D = $Head/Camera/SubViewportContainer/SubViewport/Camera/HandContainer
 @onready var ranged_weapon_controller: RangedWeaponController = $RangedWeaponController
 @onready var mesh: MeshInstance3D = $MeshInstance3D
+@onready var health: HealthComponent = $HealthComponent
+
+@onready var multiplayer_synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
 
 @onready var half_w_speed = walking_speed / 2
 
@@ -48,23 +53,49 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 var mouse_captured = true
 
+var m_id: int
+
+var current_color: Color: 
+	set(color):
+		current_color = color
+		mesh.get_active_material(0).albedo_color = color
+
 func _ready():
-	var id = multiplayer.get_unique_id()
+	
+	
+	multiplayer_synchronizer.set_multiplayer_authority(str(name).to_int())
+	m_id = multiplayer.get_unique_id()
+	camera.current = false
+	
+	var weapon_model = hand_container.get_child(0)
+	current_color = GameManager.players[m_id].color
+	print(GameManager.players[m_id].color)
+	weapon_model.set_color_recursive(current_color)
+	
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
+	
+	camera.current = true
+	print(name + " ready")
+	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
 	head_og = head.position.y
 	target_head_pos = head_og - crouching_depth
 	
-	var weapon_model = hand_container.get_child(0)
-	var color = GameManager.players[id].color
-	weapon_model.set_color_recursive(color)
-	mesh.get_active_material(0).albedo_color = color
+	#mesh.get_active_material(0).albedo_color = color
 	
+	
+	
+	#set_color.rpc()#_id(MultiplayerPeer.TARGET_PEER_SERVER)
+	spawned.emit()
 
 func _process(delta: float):
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	label.text = state_machine.current_state.name
 
 func _physics_process(delta: float) -> void:
 	
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	action_shoot()
 	
 	sprint_input = Input.is_action_pressed("sprint")
@@ -116,7 +147,16 @@ func _input(event: InputEvent) -> void:
 		
 		head_rotation_target = head.rotation_degrees
 
+@rpc("call_local")
+func set_color():
+	current_color = GameManager.players[m_id].color
+	
+	print(m_id, current_color)
+	var weapon_model = hand_container.get_child(0)
+	weapon_model.set_color_recursive(current_color)
+
 func toggle_mouse_mode():
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	if mouse_captured:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
@@ -124,15 +164,19 @@ func toggle_mouse_mode():
 	mouse_captured = !mouse_captured
 
 func get_movement_input():
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
+	
 	movement_input = Input.get_vector("left", "right", "forward", "backward")
 	return movement_input
 
 func update_movement_direction(delta: float, lerp_speed: float):
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	var input_v3 = Vector3(movement_input.x, 0.0, movement_input.y).normalized()
 	var target_direction = (transform.basis * input_v3)
 	movement_direction = lerp(movement_direction, target_direction, lerp_speed * delta);
 
 func apply_velocity():
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	if movement_direction:
 		velocity.x = movement_direction.x * current_speed
 		velocity.z = movement_direction.z * current_speed
@@ -141,20 +185,24 @@ func apply_velocity():
 		velocity.z = move_toward(velocity.z, 0.0, current_speed / 2)
 
 func apply_gravity(delta: float):
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 		return true
 	return false
 
 func set_current_move_speed(speed: float):
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	current_speed = speed
 
 func crouch(delta: float):
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	head.position.y = lerp(head.position.y, target_head_pos, delta * 10)
 	crouching_collider.disabled = false
 	standing_collider.disabled = true
 
 func stand(delta: float):
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	crouching_collider.disabled = true
 	standing_collider.disabled = false
 	head.position.y = lerp(head.position.y, head_og, delta * 10)
@@ -163,6 +211,7 @@ func is_standing():
 	return abs(head.position.y - head_og) < 0.01
 
 func jump():
+	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	velocity.y = jump_force
 
 func action_shoot():
@@ -186,4 +235,10 @@ func shooting_aimpunch():
 	shooting_aimpunch_tween.tween
 
 func take_damage(msg: DamageMessage):
-	pass
+	health.update_value(-msg.damage)
+	if health.value <= 0:
+		
+		queue_free()
+
+func get_authoriy():
+	return multiplayer_synchronizer.get_multiplayer_authority() == m_id

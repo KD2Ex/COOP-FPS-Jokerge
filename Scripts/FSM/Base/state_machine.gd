@@ -4,6 +4,7 @@ extends Node
 @export var is_disabled: bool = false
 
 var current_state: State 
+var player: Player
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -11,20 +12,31 @@ func _ready() -> void:
 	current_state.enter()
 	
 	for state: State in get_children():
-		print(state.name + " connect")
 		state.change.connect(change_state)
+	
+	set_process(false)
+	set_physics_process(false)
+
+
+func _on_player_character_spawned() -> void:
+	player = get_parent()
+	set_process(true)
+	set_physics_process(true)
 
 func _process(delta: float) -> void:
+	if !player && !player.get_authoriy(): return
 	if is_disabled: 
 		return
 	current_state.update(delta)
 
 func _physics_process(delta: float) -> void:
+	if !player && !player.get_authoriy(): return
 	if is_disabled: 
 		return
 	current_state.physics_update(delta)
 
 func change_state(to: String):
+	if !player.get_authoriy(): return
 	if is_disabled:
 		return
 	current_state.exit()

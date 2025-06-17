@@ -19,6 +19,11 @@ config/icon="res://icon.svg"
 
 GameManager="*res://Scripts/Autoload/GameManager/game_manager.gd"
 
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=480
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/godot-vim/plugin.cfg")

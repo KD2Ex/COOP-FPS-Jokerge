@@ -7,6 +7,8 @@ func _ready():
 
 func _on_host_pressed() -> void:
 	manager.start_host()
+	manager.send_player_information("hostname", multiplayer.get_unique_id())
+
 
 func _on_join_pressed() -> void:
 	manager.join_host()

@@ -1,0 +1,63 @@
+[gd_scene load_steps=4 format=3 uid="uid://cgbuxsyd0fixn"]
+
+[ext_resource type="Script" uid="uid://0qwniiobycd0" path="res://UI/web_rtc_lobby_ui.gd" id="1_exfrl"]
+[ext_resource type="PackedScene" uid="uid://dh2bd3gayagtc" path="res://Scripts/Net/client.tscn" id="1_li0q8"]
+[ext_resource type="PackedScene" uid="uid://dsqnuyyhatmmr" path="res://Scripts/Net/server.tscn" id="2_g5mg5"]
+
+[node name="WebRTCLobbyUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_exfrl")
+
+[node name="Client" parent="." instance=ExtResource("1_li0q8")]
+
+[node name="Server" parent="." instance=ExtResource("2_g5mg5")]
+
+[node name="Start Client" type="Button" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 14.0
+offset_right = 87.0
+offset_bottom = 32.0
+text = "Start Client
+"
+
+[node name="Start Server" type="Button" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 58.0
+offset_right = 113.0
+offset_bottom = 89.0
+text = "Start Server"
+
+[node name="Test" type="Button" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 127.0
+offset_right = 151.0
+offset_bottom = 158.0
+text = "Send Test packet"
+
+[node name="Join Lobby" type="Button" parent="."]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 175.0
+offset_right = 152.0
+offset_bottom = 205.0
+text = "Join Lobby"
+
+[node name="LobbyId" type="LineEdit" parent="."]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 174.0
+offset_right = 477.0
+offset_bottom = 205.0
+
+[connection signal="pressed" from="Start Client" to="." method="_on_start_client_pressed"]
+[connection signal="pressed" from="Start Server" to="." method="_on_start_server_pressed"]
+[connection signal="pressed" from="Test" to="." method="_on_test_pressed"]
+[connection signal="pressed" from="Join Lobby" to="." method="_on_join_lobby_pressed"]

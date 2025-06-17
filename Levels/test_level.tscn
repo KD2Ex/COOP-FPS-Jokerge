@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://dhi8r1hv6j52o"]
+[gd_scene load_steps=13 format=3 uid="uid://dhi8r1hv6j52o"]
 
 [ext_resource type="Texture2D" uid="uid://csvnop4qiydrp" path="res://assets/grids/Dark/texture_13.png" id="1_00vsl"]
 [ext_resource type="Texture2D" uid="uid://nj3hu3qehr5x" path="res://assets/kloofendal_48d_partly_cloudy_puresky_2k.hdr" id="1_4k50d"]
+[ext_resource type="Script" uid="uid://2tjx5l76mun7" path="res://Scripts/SceneManagement/scene_manager.gd" id="1_pvdih"]
 [ext_resource type="Texture2D" uid="uid://c3tsgpq3k48ho" path="res://assets/grids/Dark/texture_02.png" id="2_4k50d"]
 [ext_resource type="PackedScene" uid="uid://81thdff4qs8x" path="res://Player/player_character.tscn" id="4_i4ak4"]
 [ext_resource type="PackedScene" uid="uid://dv075sv7t7hfw" path="res://Entities/character.tscn" id="5_3158n"]
@@ -26,6 +27,8 @@ albedo_texture = ExtResource("1_00vsl")
 albedo_texture = ExtResource("2_4k50d")
 
 [node name="TestLevel" type="Node3D"]
+script = ExtResource("1_pvdih")
+player_scene = ExtResource("4_i4ak4")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ub4j8")
@@ -52,19 +55,17 @@ collision_mask = 0
 size = Vector3(25, 0.391, 25)
 material = SubResource("StandardMaterial3D_3158n")
 
-[node name="PlayerCharacter" parent="." instance=ExtResource("4_i4ak4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.50272, 0)
-crouching_depth = 0.8
-mouse_sens = 0.1
-
-[node name="PlayerCharacter2" parent="." instance=ExtResource("4_i4ak4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.67821, 1.50272, -3.29267)
-crouching_depth = 0.8
-mouse_sens = 0.1
-
 [node name="Character" parent="." instance=ExtResource("5_3158n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.14938, 1.1, -6.82137)
 color = Color(0.447816, 0.628187, 0.811565, 1)
 
 [node name="ImpactPoint" parent="." instance=ExtResource("6_ub4j8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.88769, 0.270582, -0.616018)
+
+[node name="SpawnPoints" type="Node3D" parent="." groups=["SpawnPoints"]]
+
+[node name="Node3D" type="Node3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.68418, 0, 6.28228)
+
+[node name="Node3D2" type="Node3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.68418, 0, -6.35711)

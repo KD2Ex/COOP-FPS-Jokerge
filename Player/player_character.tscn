@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://81thdff4qs8x"]
+[gd_scene load_steps=20 format=3 uid="uid://81thdff4qs8x"]
 
 [ext_resource type="Script" uid="uid://8o0glfn06h1k" path="res://Player/player_character.gd" id="1_dfy8k"]
 [ext_resource type="Script" uid="uid://b1wwebewkv5w3" path="res://Scripts/FSM/Base/state_machine.gd" id="2_5cwa8"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://bjbif4ech23ry" path="res://assets/textures/Crosshair3D_2.png" id="10_3yrp4"]
 [ext_resource type="PackedScene" uid="uid://j42kx7ta552u" path="res://Weapons/Ranged/ranged_weapon_controller.tscn" id="10_5j3b7"]
 [ext_resource type="Resource" uid="uid://dl1w6ivku02uo" path="res://Weapons/Ranged/test_weapon.tres" id="11_gqsy7"]
+[ext_resource type="PackedScene" uid="uid://cgtedx1j0hp1k" path="res://Components/Health/health_component.tscn" id="14_g61ia"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rc37i"]
 
@@ -20,9 +21,22 @@
 height = 1.2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g1ssd"]
+resource_local_to_scene = true
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_nnnpx"]
+resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_g1ssd")
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_g61ia"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("Head/Camera:position")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:current_color")
+properties/2/spawn = true
+properties/2/replication_mode = 1
 
 [node name="PlayerCharacter" type="CharacterBody3D"]
 collision_mask = 7
@@ -58,7 +72,7 @@ stretch = true
 transparent_bg = true
 handle_input_locally = false
 msaa_3d = 1
-size = Vector2i(1152, 648)
+size = Vector2i(720, 480)
 render_target_update_mode = 4
 
 [node name="Camera" type="Camera3D" parent="Head/Camera/SubViewportContainer/SubViewport"]
@@ -143,3 +157,10 @@ mesh = SubResource("CapsuleMesh_nnnpx")
 [node name="RangedWeaponController" parent="." node_paths=PackedStringArray("raycast") instance=ExtResource("10_5j3b7")]
 raycast = NodePath("../Head/Camera/ShootRayCast")
 weapon = ExtResource("11_gqsy7")
+
+[node name="HealthComponent" parent="." instance=ExtResource("14_g61ia")]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_g61ia")
+
+[connection signal="spawned" from="." to="StateMachine" method="_on_player_character_spawned"]
