@@ -12,4 +12,8 @@ func _ready():
 func take_damage(msg: DamageMessage):
 	health_component.update_value(-msg.damage)
 	if health_component.value <= 0:
-		queue_free()
+		die.rpc()
+
+@rpc("any_peer", "call_local")
+func die():
+	queue_free()
