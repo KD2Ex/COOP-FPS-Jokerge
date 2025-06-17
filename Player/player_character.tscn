@@ -1,0 +1,145 @@
+[gd_scene load_steps=18 format=3 uid="uid://81thdff4qs8x"]
+
+[ext_resource type="Script" uid="uid://8o0glfn06h1k" path="res://Player/player_character.gd" id="1_dfy8k"]
+[ext_resource type="Script" uid="uid://b1wwebewkv5w3" path="res://Scripts/FSM/Base/state_machine.gd" id="2_5cwa8"]
+[ext_resource type="Script" uid="uid://v52lc7eqm8gy" path="res://Scripts/FSM/Player/player_base_state.gd" id="2_5vbj4"]
+[ext_resource type="PackedScene" uid="uid://bl207c5pncxfq" path="res://blaster_repeater_2.tscn" id="2_36np3"]
+[ext_resource type="Script" uid="uid://dt15k8hpevpc3" path="res://Scripts/FSM/Player/player_idle_state.gd" id="3_a5bt4"]
+[ext_resource type="Script" uid="uid://c5c2nk7s5airy" path="res://Scripts/Materials/material_setter.gd" id="3_g1ssd"]
+[ext_resource type="Script" uid="uid://y8fvjr2a1xxe" path="res://Scripts/FSM/Player/player_walk_state.gd" id="5_qyuka"]
+[ext_resource type="Script" uid="uid://403fick63ruf" path="res://Scripts/FSM/Player/player_sprint_state.gd" id="6_lfdof"]
+[ext_resource type="Script" uid="uid://115dg4i5t7tw" path="res://Scripts/FSM/Player/player_crouch_state.gd" id="7_tvpqd"]
+[ext_resource type="Script" uid="uid://c607s61d3mvhb" path="res://Scripts/FSM/Player/player_jump_state.gd" id="8_nnnpx"]
+[ext_resource type="Texture2D" uid="uid://bjbif4ech23ry" path="res://assets/textures/Crosshair3D_2.png" id="10_3yrp4"]
+[ext_resource type="PackedScene" uid="uid://j42kx7ta552u" path="res://Weapons/Ranged/ranged_weapon_controller.tscn" id="10_5j3b7"]
+[ext_resource type="Resource" uid="uid://dl1w6ivku02uo" path="res://Weapons/Ranged/test_weapon.tres" id="11_gqsy7"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rc37i"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dfy8k"]
+height = 1.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g1ssd"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_nnnpx"]
+material = SubResource("StandardMaterial3D_g1ssd")
+
+[node name="PlayerCharacter" type="CharacterBody3D"]
+collision_mask = 7
+script = ExtResource("1_dfy8k")
+jump_force = 4.5
+mouse_sens = 0.22
+
+[node name="StandingCollider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_rc37i")
+
+[node name="CrouchingCollider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+shape = SubResource("CapsuleShape3D_dfy8k")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.99, 0.002)
+
+[node name="Camera" type="Camera3D" parent="Head"]
+cull_mask = 1048573
+current = true
+fov = 103.0
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Head/Camera"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Head/Camera/SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+msaa_3d = 1
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="Camera" type="Camera3D" parent="Head/Camera/SubViewportContainer/SubViewport"]
+cull_mask = 1047554
+fov = 48.7
+
+[node name="HandContainer" type="Node3D" parent="Head/Camera/SubViewportContainer/SubViewport/Camera"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -1, -2.25)
+
+[node name="blaster-repeater3" parent="Head/Camera/SubViewportContainer/SubViewport/Camera/HandContainer" instance=ExtResource("2_36np3")]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
+script = ExtResource("3_g1ssd")
+
+[node name="ShootRayCast" type="RayCast3D" parent="Head/Camera"]
+target_position = Vector3(0, 0, -10)
+collision_mask = 7
+
+[node name="CrouchRayCast" type="RayCast3D" parent="."]
+target_position = Vector3(0, 2, 0)
+collision_mask = 4
+hit_from_inside = true
+script = ExtResource("2_5vbj4")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("2_5cwa8")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("3_a5bt4")
+
+[node name="Walk" type="Node" parent="StateMachine"]
+script = ExtResource("5_qyuka")
+
+[node name="Sprint" type="Node" parent="StateMachine"]
+script = ExtResource("6_lfdof")
+
+[node name="Crouch" type="Node" parent="StateMachine"]
+script = ExtResource("7_tvpqd")
+
+[node name="Jump" type="Node" parent="StateMachine"]
+script = ExtResource("8_nnnpx")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -233.0
+offset_right = 281.0
+offset_bottom = 78.0
+grow_horizontal = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_3yrp4")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_nnnpx")
+
+[node name="RangedWeaponController" parent="." node_paths=PackedStringArray("raycast") instance=ExtResource("10_5j3b7")]
+raycast = NodePath("../Head/Camera/ShootRayCast")
+weapon = ExtResource("11_gqsy7")

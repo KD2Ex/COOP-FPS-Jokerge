@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://d3ft4igk0x1or"]
+
+[ext_resource type="PackedScene" uid="uid://u3cq4rmx1cct" path="res://Scripts/MultiplayerManger/multiplayer_manager.tscn" id="1_e2o6t"]
+[ext_resource type="Script" uid="uid://bwymqx3vsw3eh" path="res://game.gd" id="1_fc0e3"]
+[ext_resource type="PackedScene" uid="uid://bl4ylcst48qvq" path="res://UI/lobby_ui.tscn" id="2_feb5d"]
+[ext_resource type="PackedScene" uid="uid://dhi8r1hv6j52o" path="res://Levels/test_level.tscn" id="3_feb5d"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_fc0e3")
+start_level = ExtResource("3_feb5d")
+inst_start_level = true
+
+[node name="MultiplayerManager" parent="." instance=ExtResource("1_e2o6t")]
+
+[node name="LobbyUI" parent="." node_paths=PackedStringArray("manager") instance=ExtResource("2_feb5d")]
+visible = false
+manager = NodePath("../MultiplayerManager")

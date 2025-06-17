@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Colors" load_steps=2 format=3 uid="uid://nmxvfquibaj0"]
+
+[ext_resource type="Script" uid="uid://cfgi0js1eh556" path="res://Player/colors_resource.gd" id="1_mnlnq"]
+
+[resource]
+script = ExtResource("1_mnlnq")
+items = Dictionary[int, Color]({
+0: Color(0, 0.811765, 1, 1),
+1: Color(0.941176, 0.333333, 0, 1),
+2: Color(0, 0.960784, 0.556863, 1)
+})

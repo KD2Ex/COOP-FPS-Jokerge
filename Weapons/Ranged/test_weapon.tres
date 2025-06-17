@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="RangedWeapon" load_steps=2 format=3 uid="uid://dl1w6ivku02uo"]
+
+[ext_resource type="Script" uid="uid://bfy7d65gvvr56" path="res://Weapons/Ranged/ranged_weapon.gd" id="1_frddx"]
+
+[resource]
+script = ExtResource("1_frddx")
+position = Vector3(0, 0, 0)
+rotation = Vector3(0, 0, 0)
+muzzle_position = Vector3(0, 0, 0)
+cooldown = 0.1
+damage = 25.0
+max_distance = 20.0
+spread = 0.0
+shots_count = 1
+ammo_size = 30
+ammo_pack_size = 90
+shot = ""

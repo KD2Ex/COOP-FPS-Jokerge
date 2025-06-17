@@ -1,0 +1,70 @@
+[gd_scene load_steps=12 format=3 uid="uid://dhi8r1hv6j52o"]
+
+[ext_resource type="Texture2D" uid="uid://csvnop4qiydrp" path="res://assets/grids/Dark/texture_13.png" id="1_00vsl"]
+[ext_resource type="Texture2D" uid="uid://nj3hu3qehr5x" path="res://assets/kloofendal_48d_partly_cloudy_puresky_2k.hdr" id="1_4k50d"]
+[ext_resource type="Texture2D" uid="uid://c3tsgpq3k48ho" path="res://assets/grids/Dark/texture_02.png" id="2_4k50d"]
+[ext_resource type="PackedScene" uid="uid://81thdff4qs8x" path="res://Player/player_character.tscn" id="4_i4ak4"]
+[ext_resource type="PackedScene" uid="uid://dv075sv7t7hfw" path="res://Entities/character.tscn" id="5_3158n"]
+[ext_resource type="PackedScene" uid="uid://dn64ixshbeqd1" path="res://Debug/impact_point.tscn" id="6_ub4j8"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_i4ak4"]
+panorama = ExtResource("1_4k50d")
+
+[sub_resource type="Sky" id="Sky_3158n"]
+sky_material = SubResource("PanoramaSkyMaterial_i4ak4")
+
+[sub_resource type="Environment" id="Environment_ub4j8"]
+background_mode = 2
+sky = SubResource("Sky_3158n")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i4ak4"]
+albedo_texture = ExtResource("1_00vsl")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3158n"]
+albedo_texture = ExtResource("2_4k50d")
+
+[node name="TestLevel" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ub4j8")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00207329, -0.155734, 0.0116444)
+material_override = SubResource("StandardMaterial3D_i4ak4")
+use_collision = true
+collision_layer = 4
+collision_mask = 0
+size = Vector3(25, 0.391, 25)
+material = SubResource("StandardMaterial3D_3158n")
+
+[node name="Floor2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.7852, 1.89733, 0.0116444)
+material_override = SubResource("StandardMaterial3D_i4ak4")
+use_collision = true
+collision_layer = 4
+collision_mask = 0
+size = Vector3(25, 0.391, 25)
+material = SubResource("StandardMaterial3D_3158n")
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("4_i4ak4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.50272, 0)
+crouching_depth = 0.8
+mouse_sens = 0.1
+
+[node name="PlayerCharacter2" parent="." instance=ExtResource("4_i4ak4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.67821, 1.50272, -3.29267)
+crouching_depth = 0.8
+mouse_sens = 0.1
+
+[node name="Character" parent="." instance=ExtResource("5_3158n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.14938, 1.1, -6.82137)
+color = Color(0.447816, 0.628187, 0.811565, 1)
+
+[node name="ImpactPoint" parent="." instance=ExtResource("6_ub4j8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.88769, 0.270582, -0.616018)

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bl207c5pncxfq"]
+
+[ext_resource type="PackedScene" uid="uid://t8ayx1337crt" path="res://models/blaster-repeater.glb" id="1_h60i2"]
+
+[node name="blaster-repeater2" instance=ExtResource("1_h60i2")]
+
+[node name="blaster-repeater" parent="." index="0"]
+layers = 2
+
+[node name="Group" parent="blaster-repeater" index="0"]
+layers = 2
