@@ -3,7 +3,7 @@ extends Node3D
 @export var player_scene: PackedScene
 
 func _ready():
-	
+	# DEPRECATED, USE MULTIPLAYER SPAWNER INSTEAD
 	var index = 0
 	for i in GameManager.players:
 		var inst = player_scene.instantiate()

@@ -5,10 +5,12 @@ signal on_game_start
 
 @export var address = "127.0.0.1"
 @export var port = 8910
+@export var disable = false
 
 var peer
 
 func _ready() -> void:
+	if disable: return
 	multiplayer.peer_connected.connect(player_connected)
 	multiplayer.peer_disconnected.connect(player_disconnected)
 	multiplayer.connected_to_server.connect(connected_to_server)

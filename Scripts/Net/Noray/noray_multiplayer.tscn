@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmr353x5beuau"]
+
+[ext_resource type="Script" uid="uid://lwxsshjo0ws7" path="res://Scripts/Net/Noray/noray_multiplayer.gd" id="1_swco6"]
+
+[node name="NorayMultiplayer" type="Node"]
+script = ExtResource("1_swco6")

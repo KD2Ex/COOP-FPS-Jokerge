@@ -69,12 +69,12 @@ func _ready():
 	
 	var weapon_model = hand_container.get_child(0)
 	current_color = GameManager.players[m_id].color
-	print(GameManager.players[m_id].color)
+	#print(GameManager.players[m_id].color)
 	weapon_model.set_color_recursive(current_color)
 	
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	
-	camera.current = true
+	#camera.current = true
 	print(name + " ready")
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
