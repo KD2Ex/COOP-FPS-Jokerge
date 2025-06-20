@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://lji4qy3k66s"]
+
+[ext_resource type="PackedScene" uid="uid://bl207c5pncxfq" path="res://blaster_repeater_2.tscn" id="1_5dirj"]
+[ext_resource type="Script" uid="uid://c5c2nk7s5airy" path="res://Scripts/Materials/material_setter.gd" id="2_y1fgm"]
+
+[node name="HandsViewportContainer" type="SubViewportContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+handle_input_locally = false
+msaa_3d = 1
+size = Vector2i(720, 480)
+render_target_update_mode = 4
+
+[node name="Camera" type="Camera3D" parent="SubViewport"]
+cull_mask = 1047554
+fov = 48.7
+
+[node name="HandContainer" type="Node3D" parent="SubViewport/Camera"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -1, -2.25)
+
+[node name="blaster-repeater3" parent="SubViewport/Camera/HandContainer" instance=ExtResource("1_5dirj")]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
+script = ExtResource("2_y1fgm")

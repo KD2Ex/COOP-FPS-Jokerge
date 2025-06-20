@@ -35,7 +35,8 @@ func host():
 	is_host = true
 
 func join(oid):
-	Noray.connect_nat(oid)
+	#Noray.connect_nat(oid)
+	Noray.connect_relay(oid)
 	external_oid = oid
 
 func handle_nat_connection(address, port):

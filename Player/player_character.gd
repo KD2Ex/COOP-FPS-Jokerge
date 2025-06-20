@@ -13,6 +13,8 @@ signal spawned
 @export_subgroup("Sensitivity")
 @export var mouse_sens: float = .4
 
+@export var hands_viewport_scene: PackedScene
+
 
 @onready var current_speed = walking_speed
 @onready var head = $Head
@@ -22,7 +24,7 @@ signal spawned
 @onready var ray_cast_3d: RayCast3D = $CrouchRayCast
 @onready var label: Label = $Control/Label
 @onready var state_machine: Node = $StateMachine
-@onready var hand_container: Node3D = $Head/Camera/SubViewportContainer/SubViewport/Camera/HandContainer
+
 @onready var ranged_weapon_controller: RangedWeaponController = $RangedWeaponController
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 @onready var health: HealthComponent = $HealthComponent
@@ -45,7 +47,6 @@ var target_head_pos: float
 var head_rotation_target: Vector3
 var shooting_aimpunch_tween: Tween
 
-@onready var hand_container_offset = hand_container.position
 @onready var camera_og = $Head/Camera.position
 @onready var camera_og_rotation = $Head/Camera.rotation
 
@@ -54,11 +55,17 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var mouse_captured = true
 
 var m_id: int
+var hands_viewport_inst: SubViewportContainer
+var hand_container: Node3D
+var hand_container_offset: Vector3 
 
 var current_color: Color: 
 	set(color):
 		current_color = color
 		mesh.get_active_material(0).albedo_color = color
+
+func _enter_tree() -> void:
+	set_multiplayer_authority(str(name).to_int())	
 
 func _ready():
 	
@@ -66,15 +73,29 @@ func _ready():
 	multiplayer_synchronizer.set_multiplayer_authority(str(name).to_int())
 	m_id = multiplayer.get_unique_id()
 	camera.current = false
+	#current_color = GameManager.players[m_id].color
+	#print(GameManager.players[m_id].color)
+	#weapon_model.set_color_recursive(current_color)
+	var color = GameManager.remaining_colors.pop_front()
+	
+	if !is_multiplayer_authority(): return
+	
+	
+	var hands_viewport_inst = hands_viewport_scene.instantiate()
+	$Head/Camera.add_child(hands_viewport_inst)
+	hand_container = hands_viewport_inst.get_child(0).get_child(0).get_child(0)
+	hand_container_offset = hand_container.position
 	
 	var weapon_model = hand_container.get_child(0)
-	current_color = GameManager.players[m_id].color
-	#print(GameManager.players[m_id].color)
+	
+	if !color:
+		GameManager.refill_colors()
+		color = GameManager.remaining_colors.pop_front()
+	
+	current_color = color
 	weapon_model.set_color_recursive(current_color)
 	
-	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
-	
-	#camera.current = true
+	camera.current = true
 	print(name + " ready")
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -235,10 +256,13 @@ func shooting_aimpunch():
 	shooting_aimpunch_tween.tween
 
 func take_damage(msg: DamageMessage):
-	health.update_value(-msg.damage)
 	if health.value <= 0:
-		
-		queue_free()
+		return
+	health.update_value(-msg.damage)
+	
+	if health.value <= 0:
+		current_color = Color.BLACK
+		#queue_free()
 
 func get_authoriy():
 	return multiplayer_synchronizer.get_multiplayer_authority() == m_id

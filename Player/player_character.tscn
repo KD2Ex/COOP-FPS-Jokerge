@@ -1,11 +1,10 @@
-[gd_scene load_steps=20 format=3 uid="uid://81thdff4qs8x"]
+[gd_scene load_steps=19 format=3 uid="uid://81thdff4qs8x"]
 
 [ext_resource type="Script" uid="uid://8o0glfn06h1k" path="res://Player/player_character.gd" id="1_dfy8k"]
 [ext_resource type="Script" uid="uid://b1wwebewkv5w3" path="res://Scripts/FSM/Base/state_machine.gd" id="2_5cwa8"]
 [ext_resource type="Script" uid="uid://v52lc7eqm8gy" path="res://Scripts/FSM/Player/player_base_state.gd" id="2_5vbj4"]
-[ext_resource type="PackedScene" uid="uid://bl207c5pncxfq" path="res://blaster_repeater_2.tscn" id="2_36np3"]
+[ext_resource type="PackedScene" uid="uid://lji4qy3k66s" path="res://Player/hands_viewport.tscn" id="2_g1ssd"]
 [ext_resource type="Script" uid="uid://dt15k8hpevpc3" path="res://Scripts/FSM/Player/player_idle_state.gd" id="3_a5bt4"]
-[ext_resource type="Script" uid="uid://c5c2nk7s5airy" path="res://Scripts/Materials/material_setter.gd" id="3_g1ssd"]
 [ext_resource type="Script" uid="uid://y8fvjr2a1xxe" path="res://Scripts/FSM/Player/player_walk_state.gd" id="5_qyuka"]
 [ext_resource type="Script" uid="uid://403fick63ruf" path="res://Scripts/FSM/Player/player_sprint_state.gd" id="6_lfdof"]
 [ext_resource type="Script" uid="uid://115dg4i5t7tw" path="res://Scripts/FSM/Player/player_crouch_state.gd" id="7_tvpqd"]
@@ -35,14 +34,15 @@ properties/1/path = NodePath("Head/Camera:position")
 properties/1/spawn = true
 properties/1/replication_mode = 1
 properties/2/path = NodePath(".:current_color")
-properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/spawn = false
+properties/2/replication_mode = 2
 
 [node name="PlayerCharacter" type="CharacterBody3D"]
 collision_mask = 7
 script = ExtResource("1_dfy8k")
 jump_force = 4.5
 mouse_sens = 0.22
+hands_viewport_scene = ExtResource("2_g1ssd")
 
 [node name="StandingCollider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -59,32 +59,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.99, 0.002)
 cull_mask = 1048573
 current = true
 fov = 103.0
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Head/Camera"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch = true
-
-[node name="SubViewport" type="SubViewport" parent="Head/Camera/SubViewportContainer"]
-transparent_bg = true
-handle_input_locally = false
-msaa_3d = 1
-size = Vector2i(720, 480)
-render_target_update_mode = 4
-
-[node name="Camera" type="Camera3D" parent="Head/Camera/SubViewportContainer/SubViewport"]
-cull_mask = 1047554
-fov = 48.7
-
-[node name="HandContainer" type="Node3D" parent="Head/Camera/SubViewportContainer/SubViewport/Camera"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -1, -2.25)
-
-[node name="blaster-repeater3" parent="Head/Camera/SubViewportContainer/SubViewport/Camera/HandContainer" instance=ExtResource("2_36np3")]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
-script = ExtResource("3_g1ssd")
 
 [node name="ShootRayCast" type="RayCast3D" parent="Head/Camera"]
 target_position = Vector3(0, 0, -10)
