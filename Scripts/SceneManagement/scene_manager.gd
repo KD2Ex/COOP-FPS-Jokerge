@@ -1,6 +1,11 @@
 extends Node3D
 
 @export var player_scene: PackedScene
+@export var training_dummies: PackedScene
+@export var training_node: Node3D
+
+@onready var shooting_dummies: Node3D = $ShootingDummies
+
 
 func _ready():
 	# DEPRECATED, USE MULTIPLAYER SPAWNER INSTEAD
@@ -16,3 +21,12 @@ func _ready():
 		inst.global_position = pos
 		
 		index += 1
+
+func on_all_players_connected():
+	print("GAME SHOULD START IN =")
+	spawn_training_dummies()
+	pass
+
+func spawn_training_dummies():
+	#shooting_dummies.spawn_all()
+	shooting_dummies.spawn_rpc.rpc()

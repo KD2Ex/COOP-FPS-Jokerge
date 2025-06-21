@@ -11,6 +11,7 @@ func _ready():
 	if restore_on_ready:
 		value = max_value
 
+@rpc("any_peer", "call_local", "reliable")
 func update_value(value: int):
 	
 	self.value += value

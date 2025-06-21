@@ -27,9 +27,11 @@ albedo_texture = ExtResource("1_00vsl")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3158n"]
 albedo_texture = ExtResource("2_4k50d")
 
-[node name="TestLevel" type="Node3D"]
+[node name="TestLevel" type="Node3D" node_paths=PackedStringArray("training_node")]
 script = ExtResource("1_pvdih")
 player_scene = ExtResource("4_i4ak4")
+training_dummies = ExtResource("8_7e6fp")
+training_node = NodePath("TrainingPos")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ub4j8")
@@ -71,16 +73,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.68418, 0, 6.28228)
 [node name="Node3D2" type="Node3D" parent="SpawnPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.68418, 0, -6.35711)
 
-[node name="ShootingDummies" parent="." node_paths=PackedStringArray("spawn_points") instance=ExtResource("8_7e6fp")]
+[node name="TrainingPos" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.38666, 0, 8.05033)
+
+[node name="ShootingDummies" parent="." node_paths=PackedStringArray("spawn_points") instance=ExtResource("8_7e6fp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.94109, 0, 8.1018)
 dummy = ExtResource("5_3158n")
 spawn_points = [NodePath("Node3D"), NodePath("Node3D2"), NodePath("Node3D3")]
 
 [node name="Node3D" type="Node3D" parent="ShootingDummies"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25893, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.50874, 0, 0)
 
 [node name="Node3D2" type="Node3D" parent="ShootingDummies"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.231791, 0, 0)
 
 [node name="Node3D3" type="Node3D" parent="ShootingDummies"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8754, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.212, 0, 0)

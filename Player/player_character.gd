@@ -68,7 +68,7 @@ func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())	
 
 func _ready():
-	
+	InputMap.load_from_project_settings()
 	
 	multiplayer_synchronizer.set_multiplayer_authority(str(name).to_int())
 	m_id = multiplayer.get_unique_id()
@@ -80,6 +80,7 @@ func _ready():
 	
 	if !is_multiplayer_authority(): return
 	
+	GameManager.set_client_authority(str(name).to_int())
 	
 	var hands_viewport_inst = hands_viewport_scene.instantiate()
 	$Head/Camera.add_child(hands_viewport_inst)
@@ -153,6 +154,9 @@ func _physics_process(delta: float) -> void:
 	#move_and_slide()
 
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("start_game"):
+		if multiplayer.is_server() and is_multiplayer_authority():
+			get_parent().on_all_players_connected()
 	if event.is_action_pressed("jump"):
 		jump_input = true
 	if event.is_action_released("jump"):
