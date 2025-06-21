@@ -2,15 +2,15 @@
 
 [ext_resource type="PackedScene" uid="uid://u3cq4rmx1cct" path="res://Scripts/MultiplayerManger/multiplayer_manager.tscn" id="1_e2o6t"]
 [ext_resource type="Script" uid="uid://bwymqx3vsw3eh" path="res://game.gd" id="1_fc0e3"]
+[ext_resource type="PackedScene" uid="uid://c8d3j8obafieh" path="res://Levels/mission_level_1.tscn" id="2_eow3j"]
 [ext_resource type="PackedScene" uid="uid://bl4ylcst48qvq" path="res://UI/lobby_ui.tscn" id="2_feb5d"]
 [ext_resource type="PackedScene" uid="uid://81thdff4qs8x" path="res://Player/player_character.tscn" id="3_eow3j"]
-[ext_resource type="PackedScene" uid="uid://dhi8r1hv6j52o" path="res://Levels/test_level.tscn" id="3_feb5d"]
 [ext_resource type="PackedScene" uid="uid://cgbuxsyd0fixn" path="res://UI/web_rtc_lobby_ui.tscn" id="5_7jktm"]
 [ext_resource type="PackedScene" uid="uid://cxa1u0tdkb18h" path="res://UI/noray_lobby_ui.tscn" id="6_ryrav"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_fc0e3")
-start_level = ExtResource("3_feb5d")
+start_level = ExtResource("2_eow3j")
 player = ExtResource("3_eow3j")
 
 [node name="MultiplayerManager" parent="." instance=ExtResource("1_e2o6t")]

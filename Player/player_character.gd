@@ -59,6 +59,10 @@ var hands_viewport_inst: SubViewportContainer
 var hand_container: Node3D
 var hand_container_offset: Vector3 
 
+var interact_action: Callable
+
+var items: Array[int] = []
+
 var current_color: Color: 
 	set(color):
 		current_color = color
@@ -109,6 +113,9 @@ func _ready():
 	
 	
 	#set_color.rpc()#_id(MultiplayerPeer.TARGET_PEER_SERVER)
+	if name == "1":
+		items.push_back(0)
+	
 	spawned.emit()
 
 func _process(delta: float):
@@ -154,9 +161,15 @@ func _physics_process(delta: float) -> void:
 	#move_and_slide()
 
 func _input(event: InputEvent) -> void:
+	if !is_multiplayer_authority():
+		return
+	
 	if event.is_action_pressed("start_game"):
 		if multiplayer.is_server() and is_multiplayer_authority():
 			get_parent().on_all_players_connected()
+	if event.is_action_pressed("interact"):
+		if interact_action != Callable():
+			interact_action.call()
 	if event.is_action_pressed("jump"):
 		jump_input = true
 	if event.is_action_released("jump"):
@@ -270,3 +283,6 @@ func take_damage(msg: DamageMessage):
 
 func get_authoriy():
 	return multiplayer_synchronizer.get_multiplayer_authority() == m_id
+
+func set_interact(method: Callable):
+	interact_action = method

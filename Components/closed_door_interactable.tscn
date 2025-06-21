@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1ed681rng2wb"]
+
+[ext_resource type="Script" uid="uid://bn7ld2418delx" path="res://Components/closed_door_interactable.gd" id="1_x6tnk"]
+
+[node name="ClosedDoorInteractable" type="Node"]
+script = ExtResource("1_x6tnk")

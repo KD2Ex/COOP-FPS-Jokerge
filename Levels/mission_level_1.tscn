@@ -1,0 +1,96 @@
+[gd_scene load_steps=14 format=3 uid="uid://c8d3j8obafieh"]
+
+[ext_resource type="Texture2D" uid="uid://dmuldpkk0waic" path="res://assets/grids/Dark/texture_03.png" id="1_x1siw"]
+[ext_resource type="Texture2D" uid="uid://d2pabwwu1pndq" path="res://assets/grids/Light/texture_01.png" id="2_fyk5g"]
+[ext_resource type="Texture2D" uid="uid://dko2pc0uq6pwf" path="res://assets/grids/Green/texture_01.png" id="2_q5qgc"]
+[ext_resource type="PackedScene" uid="uid://dv075sv7t7hfw" path="res://Entities/character.tscn" id="3_k3dyl"]
+[ext_resource type="PackedScene" uid="uid://b1v766katsrkb" path="res://Components/interact_area.tscn" id="4_wbier"]
+[ext_resource type="PackedScene" uid="uid://d1ed681rng2wb" path="res://Components/closed_door_interactable.tscn" id="5_ui3o4"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_x1siw"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_fyk5g"]
+sky_material = SubResource("ProceduralSkyMaterial_x1siw")
+
+[sub_resource type="Environment" id="Environment_k3dyl"]
+background_mode = 2
+sky = SubResource("Sky_fyk5g")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fyk5g"]
+albedo_texture = ExtResource("1_x1siw")
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wbier"]
+albedo_texture = ExtResource("2_q5qgc")
+uv1_triplanar = true
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ui3o4"]
+radius = 1.61963
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k3dyl"]
+albedo_texture = ExtResource("2_fyk5g")
+uv1_triplanar = true
+
+[node name="MissionLevel1" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_k3dyl")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0957688, 0)
+material_override = SubResource("StandardMaterial3D_fyk5g")
+use_collision = true
+size = Vector3(150, 0.264, 150)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.80812, 0.536231, -0.985246)
+
+[node name="Character" parent="." instance=ExtResource("3_k3dyl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3334, 0.0362312, -16.4593)
+
+[node name="Building1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.2669, 2.44007, -11.9776)
+
+[node name="Door1" type="CSGBox3D" parent="Building1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.95108, -0.91595, 0.0395555)
+material_override = SubResource("StandardMaterial3D_wbier")
+use_collision = true
+size = Vector3(0.285645, 2.85645, 2.9751)
+
+[node name="InteractArea" parent="Building1/Door1" instance=ExtResource("4_wbier")]
+oneshot = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Building1/Door1/InteractArea"]
+shape = SubResource("CylinderShape3D_ui3o4")
+
+[node name="ClosedDoorInteractable" parent="Building1/Door1" instance=ExtResource("5_ui3o4")]
+
+[node name="Building" type="CSGBox3D" parent="Building1"]
+material_override = SubResource("StandardMaterial3D_k3dyl")
+use_collision = true
+size = Vector3(8.26099, 4.8479, 7.0332)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Building1/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.113571, -0.1264, -0.0022583)
+operation = 2
+size = Vector3(7.97684, 4.31713, 6.41931)
+
+[node name="DoorFrame" type="CSGBox3D" parent="Building1/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.02678, -0.893311, -0.0568848)
+operation = 2
+size = Vector3(1, 2.78662, 2.71631)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Building1/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0796394, -0.096168, 0)
+light_color = Color(0.991516, 0.89255, 0.808453, 1)
+omni_range = 12.695
+
+[connection signal="interacted" from="Building1/Door1/InteractArea" to="Building1/Door1/ClosedDoorInteractable" method="interact"]
