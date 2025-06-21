@@ -4,7 +4,7 @@ extends Node3D
 @export var spawn_points: Array[Node3D]
 
 @onready var respawn_timer: Timer = $Timer
-@onready var multiplayer_spawner: MultiplayerSpawner = $MultiplayerSpawner
+#@onready var multiplayer_spawner: MultiplayerSpawner = $MultiplayerSpawner
 
 var spawned: Dictionary[Vector3, Node3D]
 var index = 0
@@ -13,7 +13,7 @@ var index = 0
 func _ready() -> void:
 	for i in spawn_points:
 		spawned[i.global_position] = null
-	multiplayer_spawner.spawn_function = spawn_dummy
+	#multiplayer_spawner.spawn_function = spawn_dummy
 	#if !is_multiplayer_authority(): return
 	#spawn_rpc.rpc()
 	
@@ -25,7 +25,6 @@ func spawn_rpc():
 
 
 func spawn_all():
-	print(multiplayer_spawner.spawn_function)
 	for p in spawn_points:
 		
 		var inst = spawn_dummy()
@@ -42,7 +41,6 @@ func spawn_dummy():
 		return
 	
 	var inst: Node3D = dummy.instantiate()
-	inst.remover = self
 	add_child(inst, true)
 	
 	spawned[pos] = inst
@@ -70,14 +68,3 @@ func get_empty_spot():
 			return i.global_position
 	return Vector3.ZERO
 	#if
-
-func remove(key_pos: Vector3):
-	
-	remove_rpc_char.rpc(key_pos)
-
-@rpc("any_peer", "call_local")
-func remove_rpc_char(key_pos: Vector3):
-	var character = spawned[key_pos]
-	if !character:
-		return
-	character.queue_free()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dhi8r1hv6j52o"]
+[gd_scene load_steps=20 format=3 uid="uid://dhi8r1hv6j52o"]
 
 [ext_resource type="Texture2D" uid="uid://csvnop4qiydrp" path="res://assets/grids/Dark/texture_13.png" id="1_00vsl"]
 [ext_resource type="Texture2D" uid="uid://nj3hu3qehr5x" path="res://assets/kloofendal_48d_partly_cloudy_puresky_2k.hdr" id="1_4k50d"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://dv075sv7t7hfw" path="res://Entities/character.tscn" id="5_3158n"]
 [ext_resource type="PackedScene" uid="uid://dn64ixshbeqd1" path="res://Debug/impact_point.tscn" id="6_ub4j8"]
 [ext_resource type="PackedScene" uid="uid://ckxlte4qgcp8q" path="res://Env/shooting_dummies.tscn" id="8_7e6fp"]
+[ext_resource type="Script" uid="uid://2ibjt54t8rcf" path="res://Entities/character.gd" id="9_tc6tp"]
+[ext_resource type="PackedScene" uid="uid://cgtedx1j0hp1k" path="res://Components/Health/health_component.tscn" id="10_k8b6b"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_i4ak4"]
 panorama = ExtResource("1_4k50d")
@@ -26,6 +28,30 @@ albedo_texture = ExtResource("1_00vsl")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3158n"]
 albedo_texture = ExtResource("2_4k50d")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tc6tp"]
+resource_local_to_scene = true
+albedo_color = Color(0.412152, 0.412152, 0.412152, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_k8b6b"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_tc6tp")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vrvw4"]
+
+[sub_resource type="PackedScene" id="PackedScene_lx7qo"]
+resource_local_to_scene = true
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"names": PackedStringArray("Character", "collision_layer", "collision_mask", "script", "color", "CharacterBody3D", "MeshInstance3D", "transform", "mesh", "CollisionShape3D", "shape", "HealthComponent"),
+"node_count": 4,
+"node_paths": [],
+"nodes": PackedInt32Array(-1, -1, 5, 0, -1, 4, 1, 0, 2, 1, 3, 2, 4, 3, 0, 0, 0, 6, 6, -1, 2, 7, 4, 8, 5, 0, 0, 0, 9, 9, -1, 2, 7, 4, 10, 6, 0, 0, 0, 2147483647, 11, 7, 0, 0),
+"variants": [2, 7, ExtResource("9_tc6tp"), Color(0.964706, 0, 0, 1), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0), SubResource("CapsuleMesh_k8b6b"), SubResource("CapsuleShape3D_vrvw4"), ExtResource("10_k8b6b")],
+"version": 3
+}
 
 [node name="TestLevel" type="Node3D" node_paths=PackedStringArray("training_node")]
 script = ExtResource("1_pvdih")
@@ -78,7 +104,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.38666, 0, 8.05033)
 
 [node name="ShootingDummies" parent="." node_paths=PackedStringArray("spawn_points") instance=ExtResource("8_7e6fp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.94109, 0, 8.1018)
-dummy = ExtResource("5_3158n")
+dummy = SubResource("PackedScene_lx7qo")
 spawn_points = [NodePath("Node3D"), NodePath("Node3D2"), NodePath("Node3D3")]
 
 [node name="Node3D" type="Node3D" parent="ShootingDummies"]

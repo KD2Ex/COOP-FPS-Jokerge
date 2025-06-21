@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://dv075sv7t7hfw"]
+[gd_scene load_steps=6 format=3 uid="uid://dv075sv7t7hfw"]
 
 [ext_resource type="Script" uid="uid://2ibjt54t8rcf" path="res://Entities/character.gd" id="1_d6e1o"]
 [ext_resource type="PackedScene" uid="uid://cgtedx1j0hp1k" path="res://Components/Health/health_component.tscn" id="2_1mlnf"]
@@ -12,14 +12,6 @@ resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_d6e1o")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vrvw4"]
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_d6e1o"]
-properties/0/path = NodePath("HealthComponent:value")
-properties/0/spawn = true
-properties/0/replication_mode = 1
-properties/1/path = NodePath(".:position")
-properties/1/spawn = true
-properties/1/replication_mode = 1
 
 [node name="Character" type="CharacterBody3D"]
 collision_layer = 2
@@ -36,6 +28,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_vrvw4")
 
 [node name="HealthComponent" parent="." instance=ExtResource("2_1mlnf")]
-
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_d6e1o")

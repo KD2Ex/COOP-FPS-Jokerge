@@ -5,10 +5,6 @@ extends CharacterBody3D
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
-@export var remover: Node3D
-
-@onready var multiplayer_synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
-
 func _ready():
 	var material: Material = mesh.get_active_material(0)
 	material.albedo_color = color
@@ -22,10 +18,6 @@ func take_damage(msg: DamageMessage):
 	print("New health: %s" % health_component.value)
 	if health_component.value <= 0:
 		die.rpc()
-		if is_multiplayer_authority():
-			return
-			if remover.has_method("remove"):
-				remover.remove(global_position)
 
 @rpc("any_peer", "call_local", "reliable" )
 func die():
