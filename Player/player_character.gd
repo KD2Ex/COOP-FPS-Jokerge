@@ -49,6 +49,7 @@ var shooting_aimpunch_tween: Tween
 
 @onready var camera_og = $Head/Camera.position
 @onready var camera_og_rotation = $Head/Camera.rotation
+@onready var visuals: Node3D = $Visuals
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -86,6 +87,8 @@ func _ready():
 	
 	GameManager.set_client_authority(str(name).to_int())
 	
+	visuals.hide()
+	
 	var hands_viewport_inst = hands_viewport_scene.instantiate()
 	$Head/Camera.add_child(hands_viewport_inst)
 	hand_container = hands_viewport_inst.get_child(0).get_child(0).get_child(0)
@@ -121,11 +124,13 @@ func _ready():
 func _process(delta: float):
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	label.text = state_machine.current_state.name
+	rotation.y = lerp_angle(rotation.y, head_rotation_target.y, delta * 30)
 
 func _physics_process(delta: float) -> void:
 	
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	action_shoot()
+	
 	
 	sprint_input = Input.is_action_pressed("sprint")
 	crouch_input = Input.is_action_pressed("crouch")
@@ -134,6 +139,7 @@ func _physics_process(delta: float) -> void:
 	camera.rotation.x = lerp_angle(camera.rotation.x, 0, delta * 10)
 	camera.rotation.z = lerp_angle(camera.rotation.z, 0, delta * 10)
 	camera.rotation.y = lerp_angle(camera.rotation.y, 0, delta * 10)
+	
 	
 	if jump_input:
 		if is_on_floor():
@@ -164,6 +170,9 @@ func _input(event: InputEvent) -> void:
 	if !is_multiplayer_authority():
 		return
 	
+	if event is InputEventMouseMotion:
+		visuals.rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
+	
 	if event.is_action_pressed("start_game"):
 		if multiplayer.is_server() and is_multiplayer_authority():
 			get_parent().on_all_players_connected()
@@ -178,12 +187,17 @@ func _input(event: InputEvent) -> void:
 		toggle_mouse_mode()
 	
 	if event is InputEventMouseMotion:
-		rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
-		var head_rot = deg_to_rad(-event.relative.y * mouse_sens)
+		#rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
+		var mouse_delta = -event.relative.y * mouse_sens
+		var head_rot = deg_to_rad(mouse_delta)
 		head.rotate_x(head_rot)
 		head.rotation_degrees.x = clampf(head.rotation_degrees.x, -88, 90)
 		
-		head_rotation_target = head.rotation_degrees
+		
+		head_rotation_target.x -= event.relative.y * mouse_sens
+		head_rotation_target.y -= event.relative.x / 400
+		
+		print(event.relative)
 
 @rpc("call_local")
 func set_color():
