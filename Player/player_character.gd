@@ -115,7 +115,8 @@ func _ready():
 	
 	#mesh.get_active_material(0).albedo_color = color
 	
-	
+	for i in $Visuals/Armature/Skeleton3D.find_children("*", "MeshInstance3D"):
+		i.layers = 4
 	
 	#set_color.rpc()#_id(MultiplayerPeer.TARGET_PEER_SERVER)
 	if name == "1":
@@ -307,6 +308,8 @@ func set_interact(method: Callable):
 	interact_action = method
 
 func play_sprint_animation(dir: Vector2):
+	if dir == Vector2.ZERO:
+		return
 	var anim_name = "Run Forward Rifle"
 	
 	if dir.y >= 0:
@@ -329,6 +332,8 @@ func play_sprint_animation(dir: Vector2):
 			anim_name = "Strafe Left Rifle"
 			
 	
+	if animation_player.current_animation.get_basename() == anim_name:
+		return
 	print(anim_name)
 	animation_player.play(anim_name)
 

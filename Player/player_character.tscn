@@ -8245,7 +8245,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.19225, 2.1403)
 
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/DebugCameraPoint"]
 transform = Transform3D(1, 0, 0, 0, 0.945473, 0.3257, 0, -0.3257, 0.945473, 0, 0, 0)
-cull_mask = 1048573
+cull_mask = 1048007
 current = true
 script = ExtResource("3_b46m6")
 
@@ -8726,7 +8726,7 @@ libraries = {
 &"IdleFall": ExtResource("3_cymb5")
 }
 autoplay = "IdleFall/Rifle Idle"
-playback_default_blend_time = 0.5
+playback_default_blend_time = 0.3
 
 [node name="StandingCollider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.74485, -0.114243)
@@ -8740,7 +8740,7 @@ shape = SubResource("CapsuleShape3D_dfy8k")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0678146, 1.56891, 0.002)
 
 [node name="Camera" type="Camera3D" parent="Head"]
-cull_mask = 1048573
+cull_mask = 1048569
 current = true
 fov = 103.0
 
