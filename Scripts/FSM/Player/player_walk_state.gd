@@ -6,6 +6,7 @@ func enter():
 	context.set_current_move_speed(context.walking_speed)
 
 func update(delta: float):
+	context.play_sprint_animation(context.movement_input)
 	if input == Vector2.ZERO:
 		change.emit("Idle")
 		return

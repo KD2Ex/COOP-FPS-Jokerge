@@ -2,6 +2,11 @@ extends PlayerState
 
 var input: Vector2
 
+func enter():
+	if context.animation_player == null:
+		return
+	context.animation_player.play("IdleFall/Rifle Idle")
+
 func update(delta: float): 
 	if context.crouch_input:
 		change.emit("Crouch")

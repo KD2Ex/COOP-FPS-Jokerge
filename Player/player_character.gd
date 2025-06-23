@@ -51,6 +51,8 @@ var shooting_aimpunch_tween: Tween
 @onready var camera_og_rotation = $Head/Camera.rotation
 @onready var visuals: Node3D = $Visuals
 
+var animation_player: AnimationPlayer 
+
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 var mouse_captured = true
@@ -70,7 +72,7 @@ var current_color: Color:
 		mesh.get_active_material(0).albedo_color = color
 
 func _enter_tree() -> void:
-	set_multiplayer_authority(str(name).to_int())	
+	set_multiplayer_authority(str(name).to_int())
 
 func _ready():
 	InputMap.load_from_project_settings()
@@ -87,7 +89,7 @@ func _ready():
 	
 	GameManager.set_client_authority(str(name).to_int())
 	
-	visuals.hide()
+	#visuals.hide()
 	
 	var hands_viewport_inst = hands_viewport_scene.instantiate()
 	$Head/Camera.add_child(hands_viewport_inst)
@@ -119,6 +121,8 @@ func _ready():
 	if name == "1":
 		items.push_back(0)
 	
+	animation_player = visuals.get_node("AnimationPlayer")
+	
 	spawned.emit()
 
 func _process(delta: float):
@@ -131,6 +135,7 @@ func _physics_process(delta: float) -> void:
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	action_shoot()
 	
+	update_third_person_camera(delta)
 	
 	sprint_input = Input.is_action_pressed("sprint")
 	crouch_input = Input.is_action_pressed("crouch")
@@ -171,7 +176,8 @@ func _input(event: InputEvent) -> void:
 		return
 	
 	if event is InputEventMouseMotion:
-		visuals.rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
+		pass
+		#visuals.rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
 	
 	if event.is_action_pressed("start_game"):
 		if multiplayer.is_server() and is_multiplayer_authority():
@@ -197,7 +203,6 @@ func _input(event: InputEvent) -> void:
 		head_rotation_target.x -= event.relative.y * mouse_sens
 		head_rotation_target.y -= event.relative.x / 400
 		
-		print(event.relative)
 
 @rpc("call_local")
 func set_color():
@@ -300,3 +305,37 @@ func get_authoriy():
 
 func set_interact(method: Callable):
 	interact_action = method
+
+func play_sprint_animation(dir: Vector2):
+	var anim_name = "Run Forward Rifle"
+	
+	if dir.y >= 0:
+		if dir.y > 0:
+			if dir.x > 0:
+				anim_name = "Strafe Right Rifle"
+			elif dir.x < 0:
+				anim_name = "Strafe Left Rifle"
+			else:
+				anim_name = "Run Backward Rifle"
+		else:
+			if dir.x > 0:
+				anim_name = "Strafe Right Rifle"
+			elif dir.x < 0:
+				anim_name = "Strafe Left Rifle"
+	else:
+		if dir.x > 0:
+			anim_name = "Strafe Right Rifle"
+		elif dir.x < 0:
+			anim_name = "Strafe Left Rifle"
+			
+	
+	print(anim_name)
+	animation_player.play(anim_name)
+
+func update_third_person_camera(delta):
+	var point = $SubViewportContainer/SubViewport/DebugCameraPoint
+	point.global_position = Vector3(global_position.x, global_position.y + 2, global_position.z + 2)
+	return
+	var tex = $SubViewportContainer/SubViewport/Camera3D.get_viewport().get_texture()
+	
+	$SubViewportContainer/SubViewport/Sprite2D.texture = tex
