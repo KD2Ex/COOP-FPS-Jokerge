@@ -3,6 +3,17 @@ class_name Player
 
 signal spawned
 
+const crouch_animations: Dictionary[Vector2, String] = {
+	Vector2(0, -1.0): "Crouch Walk Forward",
+	Vector2(0, 1): "Crouch Walk Backward",
+	Vector2(-1, 0): "Crouch Walk Left",
+	Vector2(1, 0): "Crouch Walk Right",
+	Vector2(0.7, -0.7): "Crouch Walk Forward Right",
+	Vector2(-0.7, -0.7): "Crouch Walk Left",
+	Vector2(0.7, 0.7): "Crouch Walk Backward Right",
+	Vector2(-0.7, 0.7): "Crouch Walk Backward Left"
+}
+
 @export var crouching_depth = .5
 @export_subgroup("Movement")
 @export var walking_speed: float = 5.0
@@ -14,7 +25,6 @@ signal spawned
 @export var mouse_sens: float = .4
 
 @export var hands_viewport_scene: PackedScene
-
 
 @onready var current_speed = walking_speed
 @onready var head = $Head
@@ -76,6 +86,7 @@ func _enter_tree() -> void:
 
 func _ready():
 	InputMap.load_from_project_settings()
+	animation_player = visuals.get_node("AnimationPlayer")
 	
 	multiplayer_synchronizer.set_multiplayer_authority(str(name).to_int())
 	m_id = multiplayer.get_unique_id()
@@ -85,7 +96,9 @@ func _ready():
 	#weapon_model.set_color_recursive(current_color)
 	var color = GameManager.remaining_colors.pop_front()
 	
-	if !is_multiplayer_authority(): return
+	if !is_multiplayer_authority(): 
+		$ThirdPersonView.queue_free()
+		return
 	
 	GameManager.set_client_authority(str(name).to_int())
 	
@@ -122,7 +135,6 @@ func _ready():
 	if name == "1":
 		items.push_back(0)
 	
-	animation_player = visuals.get_node("AnimationPlayer")
 	
 	spawned.emit()
 
@@ -338,9 +350,33 @@ func play_sprint_animation(dir: Vector2):
 	animation_player.play(anim_name)
 
 func update_third_person_camera(delta):
-	var point = $SubViewportContainer/SubViewport/DebugCameraPoint
+	var point = $ThirdPersonView/SubViewport/DebugCameraPoint
 	point.global_position = Vector3(global_position.x, global_position.y + 2, global_position.z + 2)
-	return
-	var tex = $SubViewportContainer/SubViewport/Camera3D.get_viewport().get_texture()
+
+func play_way_animation(dir: Vector2, animations_map: Dictionary[Vector2, String]):
+	var int_dir = Vector2i(dir)
 	
-	$SubViewportContainer/SubViewport/Sprite2D.texture = tex
+	for v in animations_map:
+		var approx_y = Utils.approximate(v.y, dir.y)
+		var approx_x = Utils.approximate(v.x, dir.x)
+		var approx2 = animations_map.get(v)
+		
+		#print("%s %s %s" % [approx_y && approx_x, approx2, v])
+	
+	dir.x = snappedf(dir.x, 0.1)
+	dir.y = snappedf(dir.y, 0.1)
+	#print(dir)
+	var anim_name = animations_map.get(dir)
+	
+	if !anim_name:
+		print("invalid name: %s" % anim_name)
+		return
+	if animation_player.current_animation.get_basename() == anim_name:
+		return
+	print(anim_name)
+	animation_player.play(anim_name)
+
+@rpc("any_peer", "call_local")
+func update_animation_position(anim_name, start_time):
+	print("animation called at: %s" % [name])
+	animation_player.play_section(anim_name, start_time)

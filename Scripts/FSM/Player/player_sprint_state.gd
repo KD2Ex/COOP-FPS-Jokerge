@@ -9,6 +9,7 @@ func update(delta: float):
 	if input == Vector2.ZERO:
 		change.emit("idle")
 		return
+	context.play_sprint_animation(context.movement_input)
 	if !context.sprint_input:
 		change.emit("walk")
 		return
