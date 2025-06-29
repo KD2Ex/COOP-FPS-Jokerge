@@ -34,6 +34,9 @@ const crouch_animations: Dictionary[Vector2, String] = {
 @onready var ray_cast_3d: RayCast3D = $CrouchRayCast
 @onready var label: Label = $Control/Label
 @onready var state_machine: Node = $StateMachine
+@onready var player_HUD: Control = $Control
+@onready var health_label: RichTextLabel = $Control/VBoxContainer/HealthLabel
+@onready var health_bar: TextureProgressBar = $Control/VBoxContainer/TextureProgressBar
 
 @onready var ranged_weapon_controller: RangedWeaponController = $RangedWeaponController
 @onready var mesh: MeshInstance3D = $MeshInstance3D
@@ -42,6 +45,7 @@ const crouch_animations: Dictionary[Vector2, String] = {
 @onready var multiplayer_synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
 
 @onready var half_w_speed = walking_speed / 2
+@onready var debug_label: Label = $Control/DebugLabel
 
 var movement_lerp_accel = 10.0
 var air_lerp_speed = 3.0
@@ -76,13 +80,32 @@ var interact_action: Callable
 
 var items: Array[int] = []
 
+var surface_mesh: MeshInstance3D
+var joints_mesh: MeshInstance3D
+
 var current_color: Color: 
 	set(color):
 		current_color = color
-		mesh.get_active_material(0).albedo_color = color
+		
+		if !surface_mesh or !joints_mesh: return
+		
+		surface_mesh.get_active_material(0).albedo_color = color
+		joints_mesh.get_active_material(0).albedo_color = color
+		
+		if !hand_container: return
+		var weapon_model = hand_container.get_child(0)
+		weapon_model.set_color_recursive(current_color)
+		#mesh.get_active_material(0).albedo_color = color
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
+	var meshes = $Visuals/Armature/Skeleton3D.get_children()
+	joints_mesh = meshes[0]
+	surface_mesh = meshes[1]
+	
+	surface_mesh.get_active_material(0).albedo_color = current_color
+	joints_mesh.get_active_material(0).albedo_color = current_color
+	
 
 func _ready():
 	InputMap.load_from_project_settings()
@@ -90,16 +113,20 @@ func _ready():
 	
 	multiplayer_synchronizer.set_multiplayer_authority(str(name).to_int())
 	m_id = multiplayer.get_unique_id()
-	camera.current = false
 	#current_color = GameManager.players[m_id].color
 	#print(GameManager.players[m_id].color)
 	#weapon_model.set_color_recursive(current_color)
-	var color = GameManager.remaining_colors.pop_front()
-	
+	print("M_id: %s" % m_id)
 	if !is_multiplayer_authority(): 
+	#if multiplayer_synchronizer.get_multiplayer_authority() != m_id: 
 		$ThirdPersonView.queue_free()
+		camera.current = false
+		debug_label.hide()
+		player_HUD.hide()
+		print("not an authority, disabling camera. From: %s. Client authority: %s" % [name, multiplayer_synchronizer.get_multiplayer_authority()])
 		return
 	
+	debug_label.show()
 	GameManager.set_client_authority(str(name).to_int())
 	
 	#visuals.hide()
@@ -109,14 +136,10 @@ func _ready():
 	hand_container = hands_viewport_inst.get_child(0).get_child(0).get_child(0)
 	hand_container_offset = hand_container.position
 	
-	var weapon_model = hand_container.get_child(0)
+	#var color = GameManager.remaining_colors.pop_front()
+	#var color = GameManager.get_player_color()
 	
-	if !color:
-		GameManager.refill_colors()
-		color = GameManager.remaining_colors.pop_front()
 	
-	current_color = color
-	weapon_model.set_color_recursive(current_color)
 	
 	camera.current = true
 	print(name + " ready")
@@ -128,8 +151,12 @@ func _ready():
 	
 	#mesh.get_active_material(0).albedo_color = color
 	
-	for i in $Visuals/Armature/Skeleton3D.find_children("*", "MeshInstance3D"):
+	for i:MeshInstance3D in $Visuals/Armature/Skeleton3D.find_children("*", "MeshInstance3D"):
+		#i.get_active_material(0).albedo_color = current_color
 		i.layers = 4
+	
+	#current_color = color
+	
 	
 	#set_color.rpc()#_id(MultiplayerPeer.TARGET_PEER_SERVER)
 	if name == "1":
@@ -140,8 +167,20 @@ func _ready():
 
 func _process(delta: float):
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
+	if !is_multiplayer_authority(): return
 	label.text = state_machine.current_state.name
 	rotation.y = lerp_angle(rotation.y, head_rotation_target.y, delta * 30)
+	
+	debug_label.text = "FP Camera: %s\nauthority id: %s\n" % [camera.current, get_multiplayer_authority()]
+	#debug_label.text += "Sync Authoriry: %s\nm_id form the ready: %s\nM_get_u_id: %s" % [multiplayer_synchronizer.get_multiplayer_authority(), m_id, multiplayer.get_unique_id()]
+	debug_label.text += str(health.value)
+	
+	health_label.text = str(health.value)
+	health_bar.ratio = health.get_ratio()
+	
+	
+	camera.current = true # wtf, other clients can disable camera of the other clients
+	# i think i've messed up authority staff, but i have no clue what's the problem
 
 func _physics_process(delta: float) -> void:
 	
@@ -193,6 +232,7 @@ func _input(event: InputEvent) -> void:
 		#visuals.rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
 	
 	if event.is_action_pressed("start_game"):
+		camera.current = false
 		if multiplayer.is_server() and is_multiplayer_authority():
 			get_parent().on_all_players_connected()
 	if event.is_action_pressed("interact"):
@@ -307,11 +347,23 @@ func shooting_aimpunch():
 func take_damage(msg: DamageMessage):
 	if health.value <= 0:
 		return
-	health.update_value(-msg.damage)
-	
+	health.update_value.rpc(-msg.damage)
+	#var label = player_HUD.get_node("VBoxContainer/HealthLabel")
+	#label.text = str(health.value)
+	#update_taking_damage.rpc_id()
 	if health.value <= 0:
-		current_color = Color.BLACK
+		die.rpc()
 		#queue_free()
+
+@rpc("authority", "call_remote", "reliable")
+func update_taking_damage():
+	var label = player_HUD.get_node("VBoxContainer/HealthLabel")
+	label.text = str(health.value)
+
+@rpc("any_peer", "call_local", "reliable")
+func die():
+	
+	current_color = Color.BLACK
 
 func get_authoriy():
 	return multiplayer_synchronizer.get_multiplayer_authority() == m_id

@@ -13,6 +13,7 @@ func _ready() -> void:
 	Noray.on_connect_nat.connect(handle_nat_connection)
 	Noray.on_connect_relay.connect(handle_relay_connection)
 	Noray.connect_to_host(NORAY_ADDRESS, PORT)
+	
 	pass
 
 func on_noray_connected():

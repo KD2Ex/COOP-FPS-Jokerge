@@ -45,5 +45,36 @@ func spawn_start_level():
 func add_player(pid):
 	var player = self.player.instantiate()
 	player.name = str(pid)
+	var index = len(GameManager.players)
+	var color = GameManager.remaining_colors[0]
 	
+	print("Player added: %s" % player.name)
+	
+	#if pid == 1:
+		
+	var key = multiplayer.get_unique_id()
+	#
+	#GameManager.players.get_or_add(pid, {
+		#"id": pid,
+		#"name": "",
+		#"color": color,
+		#"node": player
+	#})
+	
+	#send_player_info.rpc(pid, pid, "", color, player)
 	return player 
+
+@rpc("any_peer", "call_local")
+func send_player_info(key, id, p_name, color, player):
+	#var clr = GameManager.remaining_colors.pop_front()
+	GameManager.players[key] = {
+		"id": id,
+		"name": p_name,
+		"color": color,
+		"node": player
+	}
+
+@rpc("any_peer", "reliable")
+func on_player_entered(color):
+	return
+	print(multiplayer.get_unique_id())
