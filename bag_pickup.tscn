@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://c5sei0uiimmeb"]
+
+[ext_resource type="Script" uid="uid://c4e6khhiuub2r" path="res://bag_pickup.gd" id="1_qq7ee"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nvcfn"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qq7ee"]
+radial_segments = 6
+rings = 3
+
+[node name="BagPickup" type="RigidBody3D"]
+script = ExtResource("1_qq7ee")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_nvcfn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_qq7ee")

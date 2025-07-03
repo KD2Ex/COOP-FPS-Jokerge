@@ -35,8 +35,9 @@ const crouch_animations: Dictionary[Vector2, String] = {
 @onready var label: Label = $Control/Label
 @onready var state_machine: Node = $StateMachine
 @onready var player_HUD: Control = $Control
-@onready var health_label: RichTextLabel = $Control/VBoxContainer/HealthLabel
+@onready var health_label: RichTextLabel = $Control/VBoxContainer/HBoxContainer/HealthLabel
 @onready var health_bar: TextureProgressBar = $Control/VBoxContainer/TextureProgressBar
+@onready var ammo_label: RichTextLabel = $Control/VBoxContainer/HBoxContainer/AmmoLabel
 
 @onready var ranged_weapon_controller: RangedWeaponController = $RangedWeaponController
 @onready var mesh: MeshInstance3D = $MeshInstance3D
@@ -64,6 +65,7 @@ var shooting_aimpunch_tween: Tween
 @onready var camera_og = $Head/Camera.position
 @onready var camera_og_rotation = $Head/Camera.rotation
 @onready var visuals: Node3D = $Visuals
+@onready var pickup_ray: ShapeCast3D = $Head/Camera/PickupRay
 
 var animation_player: AnimationPlayer 
 
@@ -82,6 +84,8 @@ var items: Array[int] = []
 
 var surface_mesh: MeshInstance3D
 var joints_mesh: MeshInstance3D
+
+var is_dead = false
 
 var current_color: Color: 
 	set(color):
@@ -140,7 +144,6 @@ func _ready():
 	#var color = GameManager.get_player_color()
 	
 	
-	
 	camera.current = true
 	print(name + " ready")
 	
@@ -162,7 +165,6 @@ func _ready():
 	if name == "1":
 		items.push_back(0)
 	
-	
 	spawned.emit()
 
 func _process(delta: float):
@@ -174,6 +176,8 @@ func _process(delta: float):
 	debug_label.text = "FP Camera: %s\nauthority id: %s\n" % [camera.current, get_multiplayer_authority()]
 	#debug_label.text += "Sync Authoriry: %s\nm_id form the ready: %s\nM_get_u_id: %s" % [multiplayer_synchronizer.get_multiplayer_authority(), m_id, multiplayer.get_unique_id()]
 	debug_label.text += str(health.value)
+	debug_label.text += animation_player.current_animation.get_basename()
+	debug_label.text += "\n%s\n" % velocity 
 	
 	health_label.text = str(health.value)
 	health_bar.ratio = health.get_ratio()
@@ -181,10 +185,22 @@ func _process(delta: float):
 	
 	camera.current = true # wtf, other clients can disable camera of the other clients
 	# i think i've messed up authority staff, but i have no clue what's the problem
+	
+	if pickup_ray.is_colliding():
+		var item = pickup_ray.get_collider(0)
+		if !item: return 
+		debug_label.text += "Looking at: %s \n" % item.name
+		interact_action = item.get_parent().pickup.bind(self)
+	
+	
+	if health.value <= 0 and state_machine.current_state.name != "Dead":
+		state_machine.change_state("dead")
+	
 
 func _physics_process(delta: float) -> void:
 	
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
+	if is_dead: return
 	action_shoot()
 	
 	update_third_person_camera(delta)
@@ -193,9 +209,9 @@ func _physics_process(delta: float) -> void:
 	crouch_input = Input.is_action_pressed("crouch")
 	
 	hand_container.position = lerp(hand_container.position, hand_container_offset, delta * 5)
-	camera.rotation.x = lerp_angle(camera.rotation.x, 0, delta * 10)
-	camera.rotation.z = lerp_angle(camera.rotation.z, 0, delta * 10)
-	camera.rotation.y = lerp_angle(camera.rotation.y, 0, delta * 10)
+	camera.rotation.x = lerp_angle(camera.rotation.x, 0, delta * 25)
+	camera.rotation.z = lerp_angle(camera.rotation.z, 0, delta * 25)
+	camera.rotation.y = lerp_angle(camera.rotation.y, 0, delta * 25)
 	
 	
 	if jump_input:
@@ -227,6 +243,11 @@ func _input(event: InputEvent) -> void:
 	if !is_multiplayer_authority():
 		return
 	
+	if event.is_action_pressed("escape"):
+		toggle_mouse_mode()
+	
+	if is_dead: return
+	
 	if event is InputEventMouseMotion:
 		pass
 		#visuals.rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
@@ -242,8 +263,6 @@ func _input(event: InputEvent) -> void:
 		jump_input = true
 	if event.is_action_released("jump"):
 		jump_input = false
-	if event.is_action_pressed("escape"):
-		toggle_mouse_mode()
 	
 	if event is InputEventMouseMotion:
 		#rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
@@ -285,11 +304,11 @@ func update_movement_direction(delta: float, lerp_speed: float):
 	var target_direction = (transform.basis * input_v3)
 	movement_direction = lerp(movement_direction, target_direction, lerp_speed * delta);
 
-func apply_velocity():
+func apply_velocity(additive_spd: float = 0):
 	if multiplayer_synchronizer.get_multiplayer_authority() != m_id: return
 	if movement_direction:
-		velocity.x = movement_direction.x * current_speed
-		velocity.z = movement_direction.z * current_speed
+		velocity.x = movement_direction.x * (current_speed + additive_spd)
+		velocity.z = movement_direction.z * (current_speed + additive_spd)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, current_speed / 2)
 		velocity.z = move_toward(velocity.z, 0.0, current_speed / 2)
@@ -332,6 +351,7 @@ func action_shoot():
 		
 		hand_container.position.z += 0.25
 		camera.rotation.x += 0.025
+		#ammo_label.text = "%s/%s" % [ranged_weapon_controller.current_ammo, ranged_weapon_controller.current_ammo_pack]
 		#camera.rotation.y += randf_range(-0.02, 0.02)
 		#camera.rotation.z += randf_range(-0.02, 0.02)
 		
@@ -362,8 +382,10 @@ func update_taking_damage():
 
 @rpc("any_peer", "call_local", "reliable")
 func die():
-	
-	current_color = Color.BLACK
+	#current_color = Color.BLACK
+	standing_collider.disabled = true
+	crouching_collider.disabled = true
+	is_dead = true
 
 func get_authoriy():
 	return multiplayer_synchronizer.get_multiplayer_authority() == m_id
@@ -432,3 +454,12 @@ func play_way_animation(dir: Vector2, animations_map: Dictionary[Vector2, String
 func update_animation_position(anim_name, start_time):
 	print("animation called at: %s" % [name])
 	animation_player.play_section(anim_name, start_time)
+
+func _on_ranged_weapon_controller_ammo_updated(value: int, pack_value) -> void:
+	ammo_label.text = "%s/%s" % [value, pack_value]
+
+func pickup_ammo(value: int):
+	ranged_weapon_controller.add_ammo_in_pack(value)
+
+func pickup_bag(bag):
+	pass

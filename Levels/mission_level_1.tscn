@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c8d3j8obafieh"]
+[gd_scene load_steps=15 format=3 uid="uid://c8d3j8obafieh"]
 
 [ext_resource type="Texture2D" uid="uid://dmuldpkk0waic" path="res://assets/grids/Dark/texture_03.png" id="1_x1siw"]
 [ext_resource type="Texture2D" uid="uid://d2pabwwu1pndq" path="res://assets/grids/Light/texture_01.png" id="2_fyk5g"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dv075sv7t7hfw" path="res://Entities/character.tscn" id="3_k3dyl"]
 [ext_resource type="PackedScene" uid="uid://b1v766katsrkb" path="res://Components/interact_area.tscn" id="4_wbier"]
 [ext_resource type="PackedScene" uid="uid://d1ed681rng2wb" path="res://Components/closed_door_interactable.tscn" id="5_ui3o4"]
+[ext_resource type="PackedScene" uid="uid://bayjhltb58c2n" path="res://Pickups/ammo_pack.tscn" id="7_2p1gj"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_x1siw"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -108,5 +109,8 @@ size = Vector3(1, 2.78662, 2.71631)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0796394, -0.096168, 0)
 light_color = Color(0.991516, 0.89255, 0.808453, 1)
 omni_range = 12.695
+
+[node name="AmmoPack" parent="." instance=ExtResource("7_2p1gj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.47912, 0.380131, -1.76042)
 
 [connection signal="interacted" from="Building1/Door1/InteractArea" to="Building1/Door1/ClosedDoorInteractable" method="interact"]

@@ -9,8 +9,9 @@ class_name RangedWeapon
 
 @export_subgroup("Stats")
 @export_range(0.05, 1) var cooldown: float = 0.1 # Firerate
+@export var reload: float = 1.5 # Realod time
 @export var damage: int = 25
-@export_range(5, 50) var max_distance: float = 20
+@export_range(5, 150) var max_distance: float = 20
 @export_range(0, 5) var spread: float = 0
 @export var shots_count: int = 1
 @export var ammo_size: int = 30

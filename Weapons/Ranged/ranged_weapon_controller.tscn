@@ -7,3 +7,9 @@ script = ExtResource("1_htguo")
 
 [node name="Cooldown" type="Timer" parent="."]
 one_shot = true
+
+[node name="Reload" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
+[connection signal="timeout" from="Reload" to="." method="_on_reload_timeout"]

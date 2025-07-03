@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://bayjhltb58c2n"]
+
+[ext_resource type="Script" uid="uid://dsv5s7k8bsbxl" path="res://Pickups/ammo_pack.gd" id="1_h7e81"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h7e81"]
+albedo_color = Color(0.862232, 0.652776, 0.363516, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2lysf"]
+material = SubResource("StandardMaterial3D_h7e81")
+size = Vector3(0.5, 0.5, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h7e81"]
+size = Vector3(0.5, 0.5, 0.5)
+
+[node name="AmmoPack" type="Node3D"]
+script = ExtResource("1_h7e81")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_2lysf")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_h7e81")

@@ -1,10 +1,12 @@
 extends PlayerState
 
 var jump_name = "8 way Rifle Locomotion/Jump Start"
+var add_spd: float
 
 func enter():
 	context.jump()
 	context.animation_player.play(jump_name)
+	#add_spd += .3
 	#context.animation_player.play_section(jump_name, 0.3)
 	#context.update_animation_position.rpc(jump_name, 0.3)
 
@@ -25,5 +27,5 @@ func physics_update(delta: float):
 	if input:
 		context.update_movement_direction(delta, context.air_lerp_speed)
 	context.apply_gravity(delta)
-	context.apply_velocity()
+	context.apply_velocity(add_spd)
 	context.move_and_slide()
